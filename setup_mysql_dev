@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+cat setup_mysql_dev.sql | mysql -hlocalhost -uroot -p
