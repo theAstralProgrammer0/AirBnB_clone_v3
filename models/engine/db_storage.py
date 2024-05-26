@@ -95,11 +95,11 @@ class DBStorage:
 
     def get(self, cls, id):
         """retrieve an object based on its class and id"""
-        if cls is None:
+        if cls is None or id is None:
             return None
-        elif type(cls) is str and cls in str2class:
+        elif type(cls) is str and cls in str2class and isinstance(id, str):
             obj = self.__session.query(str2class[cls]).filter_by(id=id).first()
-        elif cls in str2class.values():
+        elif cls in str2class.values() and isinstance(id, str):
             obj = self.__session.query(cls).filter_by(id=id).first()
         return obj
 
