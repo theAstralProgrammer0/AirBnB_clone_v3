@@ -95,23 +95,25 @@ class DBStorage:
 
     def get(self, cls, id):
         """retrieve an object based on its class and id"""
-        if cls is None:
-            return None
-        elif type(cls) is str and cls in str2class:
-            obj = self.__session.query(str2class[cls]).filter_by(id=id).first()
-        elif cls in str2class.values():
-            obj = self.__session.query(cls).filter_by(id=id).first()
-        return obj
+        if cls and id:
+            if isinstance(cls, str):
+                if cls in str2class and isinstance(id, str):
+                    obj = self.__session.query(str2class[cls]).filter_by(id=id).first()
+            else:
+                if cls in str2class.values() and isinstance(id, str):
+                    obj = self.__session.query(cls).filter_by(id=id).first()
+            return obj
+        return None
 
     def count(self, cls=None):
         """count objects based on class or all objects"""
         count = 0
-        if cls is None:
-            for clss in str2class: 
+        if cls:
+            if isinstance(cls, str):
+                count += self.__session.query(str2class[cls]).count()
+            else:
+                count += self.__session.query(cls).count()
+        else:
+            for clss in str2class:
                 count += self.__session.query(str2class[clss]).count()
-        elif type(cls) is str and cls in str2class:
-            count += self.__session.query(str2class[cls]).count()
-        elif cls in str2class.values():
-            count += self.__session.query(cls).count()
-
         return count
