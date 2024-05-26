@@ -12,7 +12,7 @@ from models.review import Review
 from models.state import State
 from models.user import User
 
-str2class = {
+str2cls = {
                 "Amenity": Amenity,
                 "BaseModel": BaseModel,
                 "City": City,
@@ -61,8 +61,7 @@ class FileStorage:
             with open(self.__file_path, 'r') as f:
                 jo = json.load(f)
             for key in jo:
-                self.__objects[key] =
-                str2class[jo[key]["__class__"]](**jo[key])
+                self.__objects[key] = str2cls[jo[key]["__class__"]](**jo[key])
         except Exception:
             pass
 
@@ -82,11 +81,11 @@ class FileStorage:
         from models import storage
         if cls and id:
             if isinstance(cls, str):
-                if cls in str2class and isinstance(id, str):
+                if cls in str2cls and isinstance(id, str):
                     searchkey = "{}.{}".format(cls, id)
                     obj = storage.all()[searchkey]
             else:
-                if cls in str2class.values() and isinstance(id, str):
+                if cls in str2cls.values() and isinstance(id, str):
                     searchkey = "{}.{}".format(str(cls.__name__), id)
                     obj = storage.all()[searchkey]
             return obj
