@@ -16,12 +16,18 @@ import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-classes = {"Amenity": Amenity, "City": City,
-           "Place": Place, "Review": Review, "State": State, "User": User}
+str2class = {
+            "Amenity": Amenity, 
+            "City": City,
+            "Place": Place,
+            "Review": Review,
+            "State": State,
+            "User": User
+         }
 
 
 class DBStorage:
-    """interaacts with the MySQL database"""
+    """interacts with the MySQL database"""
     __engine = None
     __session = None
 
@@ -41,18 +47,22 @@ class DBStorage:
             Base.metadata.drop_all(self.__engine)
 
     def all(self, cls=None):
-        """query on the current database session"""
+        """retrieve all objs on current database session"""
         new_dict = {}
-        for clss in classes:
-            if cls is None or cls is classes[clss] or cls is clss:
-                objs = self.__session.query(classes[clss]).all()
+
+        # iterate over str2class
+        for clss in str2class:
+            # validate cls arg as part of classes
+            if cls is None or cls is str2class[clss] or cls is clss:
+                objs = self.__session.query(str2class[clss]).all()
+                # iterate over objs returned to populate new_dict
                 for obj in objs:
                     key = obj.__class__.__name__ + '.' + obj.id
                     new_dict[key] = obj
         return (new_dict)
 
     def new(self, obj):
-        """add the object to the current database session"""
+        """add the obj to the current database session"""
         self.__session.add(obj)
 
     def save(self):
@@ -65,12 +75,43 @@ class DBStorage:
             self.__session.delete(obj)
 
     def reload(self):
-        """reloads data from the database"""
-        Base.metadata.create_all(self.__engine)
+        """create a database session"""
+        Base.metadata.create_all(self.__engine) # create tables based on models
+
+        # create a configured "session factory" that will generate 
+        # new Session objects when called
         sess_factory = sessionmaker(bind=self.__engine, expire_on_commit=False)
+
+        # provide thread-safe session management, 
+        # creating a registry of session objects for different threads.
         Session = scoped_session(sess_factory)
+
+        # hands over a Session object to DBStorage __session
         self.__session = Session
 
     def close(self):
         """call remove() method on the private session attribute"""
         self.__session.remove()
+
+    def get(self, cls, id):
+        """retrieve an object based on its class and id"""
+        if cls is None:
+            return None
+        elif type(cls) is str and cls in str2class:
+            obj = self.__session.query(str2class[cls]).filter_by(id=id).first()
+        elif cls in str2class.values():
+            obj = self.__session.query(cls).filter_by(id=id).first()
+        return obj
+
+    def count(self, cls=None):
+        """count objects based on class or all objects"""
+        count = 0
+        if cls is None:
+            for clss in str2class: 
+                count += self.__session.query(str2class[clss]).count()
+        elif type(cls) is str and cls in str2class:
+            count += self.__session.query(str2class[cls]).count()
+        elif cls in str2class.values():
+            count += self.__session.query(cls).count()
+
+        return count
