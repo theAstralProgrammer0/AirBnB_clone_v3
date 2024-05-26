@@ -98,11 +98,14 @@ class DBStorage:
         if cls and id:
             if isinstance(cls, str):
                 if cls in str2class and isinstance(id, str):
-                    obj = self.__session.query(str2class[cls])
-                    .filter_by(id=id).first()
+                    obj = self.__session.query(str2class[cls])\
+                                        .filter_by(id=id)\
+                                        .first()
             else:
                 if cls in str2class.values() and isinstance(id, str):
-                    obj = self.__session.query(cls).filter_by(id=id).first()
+                    obj = self.__session.query(cls)\
+                                        .filter_by(id=id)\
+                                        .first()
             return obj
         return None
 
