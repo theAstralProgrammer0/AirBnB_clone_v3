@@ -17,13 +17,13 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 str2class = {
-            "Amenity": Amenity, 
-            "City": City,
-            "Place": Place,
-            "Review": Review,
-            "State": State,
-            "User": User
-         }
+                "Amenity": Amenity,
+                "City": City,
+                "Place": Place,
+                "Review": Review,
+                "State": State,
+                "User": User
+            }
 
 
 class DBStorage:
@@ -76,13 +76,13 @@ class DBStorage:
 
     def reload(self):
         """create a database session"""
-        Base.metadata.create_all(self.__engine) # create tables based on models
+        Base.metadata.create_all(self.__engine)  # create tables from models
 
-        # create a configured "session factory" that will generate 
+        # create a configured "session factory" that will generate
         # new Session objects when called
         sess_factory = sessionmaker(bind=self.__engine, expire_on_commit=False)
 
-        # provide thread-safe session management, 
+        # provide thread-safe session management,
         # creating a registry of session objects for different threads.
         Session = scoped_session(sess_factory)
 
@@ -98,7 +98,8 @@ class DBStorage:
         if cls and id:
             if isinstance(cls, str):
                 if cls in str2class and isinstance(id, str):
-                    obj = self.__session.query(str2class[cls]).filter_by(id=id).first()
+                    obj = self.__session.query(str2class[cls])
+                    .filter_by(id=id).first()
             else:
                 if cls in str2class.values() and isinstance(id, str):
                     obj = self.__session.query(cls).filter_by(id=id).first()
