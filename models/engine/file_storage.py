@@ -12,8 +12,15 @@ from models.review import Review
 from models.state import State
 from models.user import User
 
-classes = {"Amenity": Amenity, "BaseModel": BaseModel, "City": City,
-           "Place": Place, "Review": Review, "State": State, "User": User}
+str2class = {
+                "Amenity": Amenity,
+                "BaseModel": BaseModel,
+                "City": City,
+                "Place": Place,
+                "Review": Review,
+                "State": State,
+                "User": User
+            }
 
 
 class FileStorage:
@@ -54,7 +61,7 @@ class FileStorage:
             with open(self.__file_path, 'r') as f:
                 jo = json.load(f)
             for key in jo:
-                self.__objects[key] = classes[jo[key]["__class__"]](**jo[key])
+                self.__objects[key] = str2class[jo[key]["__class__"]](**jo[key])
         except:
             pass
 
@@ -71,23 +78,30 @@ class FileStorage:
 
     def get(self, cls, id):
         """retrieve an object based on its class and id"""
-        if cls is None:
-            return None
-        elif type(cls) is str and cls in str2class:
-            obj = self.__session.query(str2class[cls]).filter_by(id=id).first()
-        elif cls in str2class.values():
-            obj = self.__session.query(cls).filter_by(id=id).first()
-        return obj
+        from models import storage
+        if cls and id:
+            if isinstance(cls, str):
+                if cls in str2class and isinstance(id, str):
+                    searchkey = "{}.{}".format(cls, id)
+                    obj = storage.all()[searchkey]
+            else:
+                if cls in str2class.values() and isinstance(id, str):
+                    searchkey = "{}.{}".format(str(cls.__name__), id)
+                    obj = storage.all()[searchkey]
+            return obj
+
+        return None
 
     def count(self, cls=None):
         """count objects based on class or all objects"""
+        from models import storage
         count = 0
-        if cls is None:
-            for clss in str2class: 
-                count += self.__session.query(str2class[clss]).count()
-        elif type(cls) is str and cls in str2class:
-            count += self.__session.query(str2class[cls]).count()
-        elif cls in str2class.values():
-            count += self.__session.query(cls).count()
+        if cls:
+            if isinstance(cls, str):
+                count += len(storage.all(cls.__name__))
+            else:
+                count += len(storage.all(cls))
+        else:
+            count += len(storage.all())
 
         return count
