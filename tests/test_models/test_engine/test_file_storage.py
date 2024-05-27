@@ -158,3 +158,12 @@ class TestFileStorage(unittest.TestCase):
         storage.new(s1)
         id = s1.id
         self.assertEquals(storage.get(State, None), None)
+
+    @unittest.skipIf(models.storage_t == 'db', "not testing db storage")
+    def test_get_wrong_id(self):
+        """Test that count returns the right number of elements in the db"""
+        from models import storage
+        from models.state import State
+        s1 = State(name='Knoxville')
+        storage.new(s1)
+        self.assertEquals(storage.get(State, 12345), None)
