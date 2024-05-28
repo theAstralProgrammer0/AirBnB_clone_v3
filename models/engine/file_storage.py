@@ -82,8 +82,11 @@ class FileStorage:
         if cls and id:
             if isinstance(cls, str):
                 if cls in str2cls and isinstance(id, str):
-                    searchkey = "{}.{}".format(cls, id)
+                    searchkey = "{}.{}".format(cls.__name__, id)
+                    print("obj = storage.all(cls)[searchkey]; searchkey = cls.id")
                     obj = storage.all()[searchkey]
+                    print(obj)
+
             else:
                 if cls in str2cls.values() and isinstance(id, str):
                     searchkey = "{}.{}".format(str(cls.__name__), id)
@@ -100,7 +103,7 @@ class FileStorage:
             if isinstance(cls, str):
                 count += len(storage.all(cls.__name__))
             else:
-                count += len(storage.all(cls))
+                count += len(storage.all())
         else:
             count += len(storage.all())
 
