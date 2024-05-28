@@ -22,6 +22,7 @@ def get_states():
 # GET '/api/v1/states/<state_id>' RESTful API endpoint 
 @app_views.route('/states/<state_id>', methods=['GET'], strict_slashes=False)
 def get_state_by_id(state_id):
+    """get the states by id from storage"""
     state = storage.get(State, state_id)
     if not state:
         abort(404)
@@ -30,6 +31,7 @@ def get_state_by_id(state_id):
 # DELETE '/api/v1/states/<state_id>' RESTful API endpoint
 @app_views.route('/states/<state_id>', methods=['DELETE'], strict_slashes=False)
 def delete_state_by_id(state_id):
+    """delete a state by id from storage"""
     state = storage.get(State, state_id)
     if not state:
         abort(404)
@@ -40,6 +42,7 @@ def delete_state_by_id(state_id):
 # POST '/api/v1/states' RESTful API endpoint
 @app_views.route('/states', methods=['POST'], strict_slashes=False)
 def post_state():
+    """post a new state to storage"""
     if req.json:
         if 'name' in req.json:
             data = req.get_json()
@@ -62,6 +65,7 @@ def post_state():
 # PUT '/api/v1/states/<state_id>' RESTful API endpoint
 @app_views.route('/states/<state_id>', methods=['PUT'], strict_slashes=False)
 def update_state_by_id(state_id):
+    """update an existing state on storage"""
     ignore = ['id', 'created_at', 'updated_at']
     state = storage.get(State, state_id)
     if not state:
