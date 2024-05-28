@@ -1,7 +1,6 @@
 #!/usr/bin/python3
-"""app module"""
+"""This is the doc for app module"""
 from flask import Flask, make_response, jsonify
-from models import storage
 from api.v1.views import app_views
 from os import getenv
 from flask_cors import CORS
@@ -17,7 +16,9 @@ cors = CORS(app, resources={r"/*": {"origins": "0.0.0.0"}})
 @app.teardown_appcontext
 def teardown(obj):
     """method to teardown to end the db session"""
+    from models import storage
     storage.close()
+
 
 @app.errorhandler(404)
 def page_not_found(error):
