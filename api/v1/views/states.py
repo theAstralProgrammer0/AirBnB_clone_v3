@@ -19,7 +19,8 @@ def get_states():
     # jsonify list of dicts of state objs and return
     return mr(jsonify([state.to_dict() for state in states]), 200)
 
-# GET '/api/v1/states/<state_id>' RESTful API endpoint 
+
+# GET '/api/v1/states/<state_id>' RESTful API endpoint
 @app_views.route('/states/<state_id>', methods=['GET'], strict_slashes=False)
 def get_state_by_id(state_id):
     """get the states by id from storage"""
@@ -28,8 +29,10 @@ def get_state_by_id(state_id):
         abort(404)
     return mr(jsonify(state.to_dict()), 200)
 
+
 # DELETE '/api/v1/states/<state_id>' RESTful API endpoint
-@app_views.route('/states/<state_id>', methods=['DELETE'], strict_slashes=False)
+@app_views.route('/states/<state_id>', methods=['DELETE'],
+                 strict_slashes=False)
 def delete_state_by_id(state_id):
     """delete a state by id from storage"""
     state = storage.get(State, state_id)
@@ -38,6 +41,7 @@ def delete_state_by_id(state_id):
     storage.delete(state)
     storage.save()
     return mr(jsonify({}), 200)
+
 
 # POST '/api/v1/states' RESTful API endpoint
 @app_views.route('/states', methods=['POST'], strict_slashes=False)
@@ -61,6 +65,7 @@ def post_state():
         else:
             abort(400, description='Missing name')
     abort(400, description='Not a JSON')
+
 
 # PUT '/api/v1/states/<state_id>' RESTful API endpoint
 @app_views.route('/states/<state_id>', methods=['PUT'], strict_slashes=False)
