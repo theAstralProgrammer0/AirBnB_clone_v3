@@ -79,6 +79,9 @@ class FileStorage:
     def get(self, cls, id):
         """retrieve an object based on its class and id"""
         from models import storage
+
+        obj = None
+
         if cls and id:
             if isinstance(cls, str):
                 if cls in str2cls and isinstance(id, str):
@@ -86,17 +89,15 @@ class FileStorage:
                     try:
                         obj = storage.all()[searchkey]
                     except Exception:
-                        return None
+                        pass
             else:
                 if cls in str2cls.values() and isinstance(id, str):
                     searchkey = "{}.{}".format(cls.__name__, id)
                     try:
                         obj = storage.all()[searchkey]
                     except Exception:
-                        return None
-            return obj
-
-        return None
+                        pass
+        return obj
 
     def count(self, cls=None):
         """count objects based on class or all objects"""
