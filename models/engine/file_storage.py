@@ -85,14 +85,14 @@ class FileStorage:
                     searchkey = "{}.{}".format(cls, id)
                     try:
                         obj = storage.all()[searchkey]
-                    except KeyError:
+                    except Exception:
                         return None
             else:
                 if cls in str2cls.values() and isinstance(id, str):
                     searchkey = "{}.{}".format(cls.__name__, id)
                     try:
                         obj = storage.all()[searchkey]
-                    except KeyError:
+                    except Exception:
                         return None
             return obj
 
