@@ -20,7 +20,7 @@ def get_method_state(state_id):
     state = storage.get(State, state_id)
     if state is None:
         abort(404)
-    return jsonify(state.to_dict())
+    return jsonify(state.to_dict()), 200
 
 
 @app_views.route('/states/<string:state_id>', methods=['DELETE'],
@@ -30,9 +30,9 @@ def del_method(state_id):
     state = storage.get(State, state_id)
     if state is None:
         abort(404)
-    state.delete()
+    storage.delete(state)
     storage.save()
-    return jsonify({})
+    return jsonify({}), 200
 
 
 @app_views.route('/states/', methods=['POST'],
@@ -40,9 +40,9 @@ def del_method(state_id):
 def create_obj():
     """ create new instance """
     if not request.get_json():
-        return make_response(jsonify({"error": "Not a JSON"}), 400)
+        abort(400, "Not a JSON")
     if 'name' not in request.get_json():
-        return make_response(jsonify({"error": "Missing name"}), 400)
+        return abort(400, "Missing name")
     js = request.get_json()
     obj = State(**js)
     obj.save()
@@ -54,7 +54,7 @@ def create_obj():
 def post_method(state_id):
     """ post method """
     if not request.get_json():
-        return make_response(jsonify({"error": "Not a JSON"}), 400)
+        abort(400, description="Not a JSON")
     obj = storage.get(State, state_id)
     if obj is None:
         abort(404)
@@ -62,4 +62,4 @@ def post_method(state_id):
         if key not in ['id', 'created_at', 'updated']:
             setattr(obj, key, value)
     storage.save()
-    return jsonify(obj.to_dict())
+    return jsonify(obj.to_dict()), 201
