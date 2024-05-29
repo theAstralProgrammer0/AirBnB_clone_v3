@@ -1,83 +1,72 @@
 #!/usr/bin/python3
-"""This module defines the /amenities view
 """
-
-from flask import jsonify, abort, request, make_response  # type: ignore
-from models import storage
+This file contains the Amenity module
+"""
 from api.v1.views import app_views
+from flask import jsonify, abort, request, make_response
+from models import storage
 from models.amenity import Amenity
+from flasgger.utils import swag_from
 
 
-@app_views.route('/amenities',
-                 strict_slashes=False, methods=['GET'])
-@app_views.route('/amenities/<amenity_id>',
-                 strict_slashes=False, methods=['GET'])
-def get_amenities(amenity_id=None):
-    """retrieves amenities object from storage and
-    displays JSON representation to it.
-    """
-    if (amenity_id is not None):
-        obj = storage.get(Amenity, amenity_id)
-        if obj is None:
-            abort(404)
-        else:
-            return jsonify(obj.to_dict())
-    else:
-        amenities_list = []
-        for key, value in storage.all(Amenity).items():
-            amenities_list.append(value.to_dict())
-        return jsonify(amenities_list)
+@app_views.route('/amenities', methods=['GET'], strict_slashes=False)
+@swag_from('documentation/amenity/get.yml', methods=['GET'])
+def get_all_amenities():
+    """ get amenities by id """
+    all_list = [obj.to_dict() for obj in storage.all(Amenity).values()]
+    return jsonify(all_list)
 
 
-@app_views.route('/amenities/<amenity_id>', strict_slashes=False,
-                 methods=['DELETE'])
-def delete_amenity(amenity_id):
-    """Deletes amenity object from storage and displays
-    an empty dictionary representation.
-    """
-    obj = storage.get(Amenity, amenity_id)
-    if obj is None:
+@app_views.route('/amenities/<string:amenity_id>', methods=['GET'],
+                 strict_slashes=False)
+@swag_from('documentation/amenity/get_id.yml', methods=['GET'])
+def get_amenity(amenity_id):
+    """ get amenity by id"""
+    amenity = storage.get(Amenity, amenity_id)
+    if amenity is None:
         abort(404)
-    else:
-        storage.delete(obj)
-        storage.save()
-        return make_response(jsonify({}), 200)
+    return jsonify(amenity.to_dict())
 
 
-@app_views.route('/amenities', strict_slashes=False, methods=['POST'])
-def create_amenity():
-    """Creates a new amenity object and adds it to storage
-    with the given key value pairs.
-    """
-    try:
-        obj_dict = request.get_json()
-        if obj_dict is None:
-            abort(400, "Not a JSON")
-    except Exception:
-        abort(400, "Not a JSON")
-    if 'name' not in obj_dict:
-        abort(400, "Missing name")
-    new_amenity = Amenity(**obj_dict)
-    storage.new(new_amenity)
+@app_views.route('/amenities/<string:amenity_id>', methods=['DELETE'],
+                 strict_slashes=False)
+@swag_from('documentation/amenity/delete.yml', methods=['DELETE'])
+def del_amenity(amenity_id):
+    """ delete amenity by id"""
+    amenity = storage.get(Amenity, amenity_id)
+    if amenity is None:
+        abort(404)
+    amenity.delete()
     storage.save()
-    return make_response(jsonify(new_amenity.to_dict()), 201)
+    return jsonify({})
 
 
-@app_views.route('/amenities/<amenity_id>',
-                 strict_slashes=False, methods=['PUT'])
-def update_amenity(amenity_id):
-    """Updates a amenity object with given keys and values
-    """
+@app_views.route('/amenities/', methods=['POST'],
+                 strict_slashes=False)
+@swag_from('documentation/amenity/post.yml', methods=['POST'])
+def create_obj_amenity():
+    """ create new instance """
+    if not request.get_json():
+        return make_response(jsonify({"error": "Not a JSON"}), 400)
+    if 'name' not in request.get_json():
+        return make_response(jsonify({"error": "Missing name"}), 400)
+    js = request.get_json()
+    obj = Amenity(**js)
+    obj.save()
+    return (jsonify(obj.to_dict()), 201)
+
+
+@app_views.route('/amenities/<string:amenity_id>', methods=['PUT'],
+                 strict_slashes=False)
+@swag_from('documentation/amenity/put.yml', methods=['PUT'])
+def post_amenity(amenity_id):
+    """  """
+    if not request.get_json():
+        return make_response(jsonify({"error": "Not a JSON"}), 400)
     obj = storage.get(Amenity, amenity_id)
     if obj is None:
         abort(404)
-    try:
-        obj_dict = request.get_json()
-        if obj_dict is None:
-            abort(400, "Not a JSON")
-    except Exception:
-        abort(400, "Not a JSON")
-    for key, value in obj_dict.items():
+    for key, value in request.get_json().items():
         if key not in ['id', 'created_at', 'updated_at']:
             setattr(obj, key, value)
     storage.save()
