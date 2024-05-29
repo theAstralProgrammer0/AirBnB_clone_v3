@@ -27,6 +27,7 @@ def not_found(error):
     """returns a response with 404 status code and json obj data"""
     return make_response(jsonify({"error": "Not found"}), 404)
 
+
 @app.errorhandler(500)
 def server_err(error):
     """returns a response with 500 status code and json obj data"""
