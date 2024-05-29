@@ -63,8 +63,9 @@ def post_state():
                 storage.save()
             return make_response(jsonify([s for s in new_states]), 201)
         else:
-            abort(400, description='Missing name')
-    abort(400, description='Not a JSON')
+            return make_response(jsonify({"error": "Mission name"}), 400)
+    else:
+        return make_response(jsonify({"error": "Not a JSON"}), 400)
 
 
 # PUT '/api/v1/states/<state_id>' RESTful API endpoint
@@ -86,4 +87,4 @@ def update_state_by_id(state_id):
                 storage.save()
             return make_response(jsonify(state.to_dict()), 200)
     else:
-        abort(400, description="Not a JSON")
+        return make_response(jsonify({"error": "Not a JSON"}), 400)
